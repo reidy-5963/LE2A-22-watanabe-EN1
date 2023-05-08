@@ -8,6 +8,10 @@ public class GameManagerScript : MonoBehaviour
 
     public GameObject playerPrefab;
     public GameObject boxPrefab;
+    public GameObject GoalsPrefab;
+
+
+    public GameObject clearText;
 
     //”z—ñ‚ÌéŒ¾
     int[,] map;
@@ -74,16 +78,46 @@ public class GameManagerScript : MonoBehaviour
 
         return true;
     }
+    
+    bool IsCleard()
+    {
+        List<Vector2Int> goals = new List<Vector2Int>();
 
+        for(int y = 0; y < map.GetLength(0); y++)
+        {
+            for(int x = 0; x < map.GetLength(1); x++)
+            {
+
+                if (map[y, x] == 3)
+                {
+                    goals.Add((new Vector2Int(x, y)));
+                }
+            }
+        }
+
+        for (int i = 0; i < goals.Count; i++)
+        {
+            GameObject f = field[goals[i].y, goals[i].x];
+            if (f == null || f.tag != "Box")
+            {
+
+                return false;
+            }
+        }
+        return true;
+    }
 
     // Start is called before the first frame update
     void Start()
     {
         //”z—ñ‚ÌÀÑ‚Ìì¬‚Æ‰Šú‰»
         map = new int[,] {
-            { 0, 0, 0, 0, 0 },
-            { 0, 2, 1, 2, 0 },
-            { 0, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 2, 1, 2, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 0, 0 },
+            { 0, 0, 3, 0, 0, 0, 0 },
+            { 0, 0, 0, 0, 0, 3, 0 },
+            { 0, 0, 0, 0, 0, 0, 0 }
         };
         field = new GameObject
         [
@@ -112,6 +146,13 @@ public class GameManagerScript : MonoBehaviour
                         new Vector3(x, map.GetLength(0) - y, 0),
                         Quaternion.identity);
                 }
+                if (map[y, x] == 3)
+                {
+                   Instantiate(
+                        GoalsPrefab,
+                        new Vector3(x, map.GetLength(0) - y, 0.01f),
+                        Quaternion.identity);
+                }
             }
             debugText += "\n";
         }
@@ -127,21 +168,35 @@ public class GameManagerScript : MonoBehaviour
             Vector2Int index = GetPlayerIndex();
             MoveObject("Player", index, new Vector2Int(index.x - 1, index.y));
 
+            if(IsCleard())
+            {
+                clearText.SetActive(true);
+            }
+
         }
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
             MoveObject("Player", GetPlayerIndex(), new Vector2Int(GetPlayerIndex().x + 1, GetPlayerIndex().y));
-
+            if (IsCleard())
+            {
+                clearText.SetActive(true);
+            }
         }
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             MoveObject("Player", GetPlayerIndex(), new Vector2Int(GetPlayerIndex().x, GetPlayerIndex().y - 1));
-
+            if (IsCleard())
+            {
+                clearText.SetActive(true);
+            }
         }
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             MoveObject("Player", GetPlayerIndex(), new Vector2Int(GetPlayerIndex().x, GetPlayerIndex().y + 1));
-
+            if (IsCleard())
+            {
+                clearText.SetActive(true);
+            }
         }
 
     }
